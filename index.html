@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTRCA Prelim Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #dbeafe;
+            --secondary: #475569;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #94a3b8;
+            --border: #e2e8f0;
+            --facebook: #3b5998;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .social-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--facebook);
+            color: white;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .social-bar a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .social-bar .latest-update {
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-facebook {
+            background: var(--facebook);
+        }
+
+        .btn-facebook:hover {
+            background: #2d4373;
+        }
+
+        .btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .option-btn.selected {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            font-weight: bold;
+        }
+
+        .option-btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .question-card {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .question-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .review-correct {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .review-incorrect {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .explanation {
+            padding: 15px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leaderboard-header {
+            font-weight: bold;
+            background: var(--light);
+        }
+
+        .leaderboard-rank {
+            width: 50px;
+            text-align: center;
+        }
+
+        .leaderboard-name {
+            flex: 1;
+        }
+
+        .leaderboard-score {
+            width: 100px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .notification {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .notification-info {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .notification-success {
+            background: #dcfce7;
+            color: var(--success);
+        }
+
+        .notification-warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .notification-error {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: var(--light);
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .stat-title {
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .profile-exam-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .profile-exam-item:hover {
+            background: var(--light);
+        }
+
+        .admin-preview {
+            background: #fffbeb;
+            border: 2px dashed #f59e0b;
+        }
+
+        .active-users-list {
+            margin-top: 20px;
+        }
+
+        .active-user {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .review-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .option-btn {
+                padding: 12px;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                margin-bottom: 5px;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .social-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="social-bar">
+                <a href="https://facebook.com/NTRCA" target="_blank">
+                    <i class="fab fa-facebook"></i> Facebook: NTRCA (বেসরকারি শিক্ষক নিবন্ধন) 
+                </a>
+                <div class="latest-update">
+                    <i class="fas fa-sync-alt"></i> Latest Update: Check Our facebook page NTRCA
+                </div>
+            </div>
+            
+            <h1>NTRCA Prelim Test</h1>
+            <p id="exam-subject">বাংলা সাহিত্য</p>
+            <p id="exam-topic">Topic: বাংলা সাহিত্য</p>
+            <p id="exam-difficulty">Difficulty: Medium</p>
+            <p id="exam-timer" class="timer"></p>
+        </header>
+
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-target="exam-interface">
+                <i class="fas fa-book"></i> পরীক্ষা
+            </div>
+            <div class="nav-tab" data-target="leaderboard">
+                <i class="fas fa-trophy"></i> লিডারবোর্ড
+            </div>
+            <div class="nav-tab" data-target="profile">
+                <i class="fas fa-user"></i> প্রোফাইল
+            </div>
+            <div class="nav-tab" data-target="admin-dashboard">
+                <i class="fas fa-cog"></i> এডমিন
+            </div>
+        </div>
+
+        <main>
+            <!-- Admin Dashboard -->
+            <section id="admin-dashboard" class="card hidden">
+                <h2><i class="fas fa-cog"></i> Admin Dashboard</h2>
+                <div id="admin-login">
+                    <input type="password" id="admin-password" placeholder="Admin Password">
+                    <button class="btn" onclick="adminLogin()">Login</button>
+                </div>
+                <div id="admin-panel" class="hidden">
+                    <div class="admin-stats">
+                        <div class="stat-card">
+                            <div class="stat-title">Total Participants</div>
+                            <div class="stat-number" id="total-participants">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Active Now</div>
+                            <div class="stat-number" id="active-users">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Avg. Score</div>
+                            <div class="stat-number" id="avg-score">0</div>
+                        </div>
+                    </div>
+
+                    <h3>Create New Exam</h3>
+                    <textarea id="exam-json" placeholder="Paste JSON here" rows="10"></textarea>
+                    <p>Or</p>
+                    <input type="file" id="json-upload" accept=".json">
+                    <div class="mt-20">
+                        <h3>Exam Settings</h3>
+                        <input type="text" id="exam-title" placeholder="Exam Title">
+                        <input type="date" id="exam-date">
+                        <input type="time" id="exam-start-time">
+                        <input type="time" id="exam-end-time">
+                    </div>
+                    <button class="btn btn-success mt-20" onclick="saveExam()">Save Exam</button>
+                    <div id="exam-link-container" class="hidden mt-20">
+                        <h3>Exam Link</h3>
+                        <input type="text" id="exam-link" readonly>
+                        <button class="btn" onclick="copyLink()">Copy Link</button>
+                    </div>
+                    <div class="mt-20">
+                        <h3>Preview Exam</h3>
+                        <button class="btn" onclick="previewExam()">Preview Exam</button>
+                    </div>
+
+                    <div class="active-users-list mt-20">
+                        <h3>Active Users</h3>
+                        <div id="active-users-container">
+                            <!-- Active users will be listed here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Exam Interface -->
+            <section id="exam-interface" class="card">
+                <div id="participant-login">
+                    <h2><i class="fas fa-book"></i> পরীক্ষায় অংশগ্রহণ</h2>
+                    <input type="text" id="participant-name" placeholder="আপনার নাম লিখুন">
+                    <button class="btn" onclick="startExam()">পরীক্ষা শুরু করুন</button>
+                    <p id="already-taken-message" class="notification notification-error hidden mt-20">
+                        আপনি ইতিমধ্যে এই পরীক্ষা দিয়েছেন।
+                    </p>
+                </div>
+
+                <div id="exam-content" class="hidden">
+                    <div id="questions-container">
+                        <!-- Questions will be inserted here -->
+                    </div>
+                    
+                    <div class="text-center">
+                        <button class="btn btn-success" id="submit-btn" onclick="submitExam()">জমা দিন</button>
+                    </div>
+                </div>
+
+                <div id="status-message" class="hidden">
+                    <div id="countdown-message" class="notification notification-info">
+                        <h2>পরীক্ষা এখনো শুরু হয়নি</h2>
+                        <p id="countdown-text"></p>
+                    </div>
+                    <div id="exam-closed-message" class="notification notification-error hidden">
+                        <h2>পরীক্ষা শেষ হয়েছে</h2>
+                        <p>দুঃখিত, পরীক্ষার সময় শেষ হয়ে গেছে।</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="card hidden">
+                <h2><i class="fas fa-user"></i> আপনার প্রোফাইল</h2>
+                <div id="profile-info">
+                    <div class="profile-header">
+                        <div class="user-avatar" id="profile-avatar"></div>
+                        <div>
+                            <h3 id="profile-name"></h3>
+                            <p id="profile-email"></p>
+                        </div>
+                    </div>
+                    <div id="exam-history" class="mt-20">
+                        <h3><i class="fas fa-history"></i> আপনার পরীক্ষার History</h3>
+                        <div id="exam-history-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leaderboard -->
+            <section id="leaderboard" class="card hidden">
+                <h2><i class="fas fa-trophy"></i> লিডারবোর্ড</h2>
+                <div class="leaderboard-item leaderboard-header">
+                    <div class="leaderboard-rank">Rank</div>
+                    <div class="leaderboard-name">Name</div>
+                    <div class="leaderboard-score">Score</div>
+                </div>
+                <div id="leaderboard-items"></div>
+            </section>
+
+            <!-- Exam Review Section -->
+            <section id="exam-review" class="card hidden">
+                <h2><i class="fas fa-check-circle"></i> পরীক্ষা পর্যালোচনা</h2>
+                <div class="text-center">
+                    <div class="notification" id="score-display"></div>
+                    <button class="btn btn-facebook" onclick="shareOnFacebook()">
+                        <i class="fab fa-facebook"></i> Facebook-এ শেয়ার করুন
+                    </button>
+                </div>
+                <div class="review-container" id="review-questions">
+                    <!-- Review questions will be inserted here -->
+                </div>
+                <div class="text-center mt-20">
+                    <button class="btn" onclick="switchView('leaderboard')">লিডারবোর্ড দেখুন</button>
+                    <button class="btn" onclick="switchView('profile')">প্রোফাইলে যান</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let examData = null;
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let examStarted = false;
+        let examEnded = false;
+        let isAdmin = false;
+        let isPreview = false;
+        const ADMIN_PASSWORD = "FahimsirNTRCA"; // Simple hardcoded password
+
+        // Initialize the application
+        function init() {
+            // Setup navigation tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.getAttribute('data-target');
+                    switchView(target);
+                });
+            });
+
+            // Check if we're the admin
+            if (window.location.hash === '#admin') {
+                switchView('admin-dashboard');
+                return;
+            }
+
+            // Check if there's an exam in localStorage
+            const savedExam = localStorage.getItem('ntrca_exam');
+            if (savedExam) {
+                examData = JSON.parse(savedExam);
+                updateExamInfo();
+                checkExamStatus();
+            }
+
+            // Load profile if user has taken exams before
+            loadProfile();
+
+            // Handle file upload
+            document.getElementById('json-upload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('exam-json').value = e.target.result;
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Update admin stats periodically
+            setInterval(updateAdminStats, 5000);
+        }
+
+        // Switch between views
+        function switchView(viewId) {
+            // Hide all views
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('exam-interface').classList.add('hidden');
+            document.getElementById('profile').classList.add('hidden');
+            document.getElementById('leaderboard').classList.add('hidden');
+            document.getElementById('exam-review').classList.add('hidden');
+
+            // Show selected view
+            document.getElementById(viewId).classList.remove('hidden');
+
+            // Update active tab
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.nav-tab[data-target="${viewId}"]`).classList.add('active');
+
+            // Load data for specific views
+            if (viewId === 'leaderboard') {
+                showLeaderboard();
+            } else if (viewId === 'profile') {
+                loadProfile();
+            } else if (viewId === 'admin-dashboard') {
+                updateAdminStats();
+            }
+        }
+
+        // Admin login
+        function adminLogin() {
+            const password = document.getElementById('admin-password').value;
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                
+                // Load existing exam data if available
+                const savedExam = localStorage.getItem('ntrca_exam');
+                if (savedExam) {
+                    const exam = JSON.parse(savedExam);
+                    document.getElementById('exam-title').value = exam.title || '';
+                    document.getElementById('exam-date').value = exam.date || '';
+                    document.getElementById('exam-start-time').value = exam.startTime || '';
+                    document.getElementById('exam-end-time').value = exam.endTime || '';
+                    
+                    if (exam.questions) {
+                        document.getElementById('exam-json').value = JSON.stringify({
+                            subject: exam.subject,
+                            topic: exam.topic,
+                            difficulty: exam.difficulty,
+                            questions: exam.questions
+                        }, null, 2);
+                    }
+                }
+            } else {
+                alert('Invalid password');
+            }
+        }
+
+        // Update admin statistics
+        function updateAdminStats() {
+            if (!isAdmin) return;
+            
+            const leaderboard = JSON.parse(localStorage.getItem('ntrca_leaderboard') || '[]');
+            const activeUsers = JSON.parse(localStorage.getItem('ntrca_active_users') || '[]');
+            
+            // Update stats
+            document.getElementById('total-participants').textContent = leaderboard.length;
+            document.getElementById('active-users').textContent = activeUsers.length;
+            
+            // Calculate average score
+            const avgScore = leaderboard.length > 0 ? 
+                (leaderboard.reduce((sum, user) => sum + user.score, 0) / leaderboard.length).toFixed(1) : 0;
+            document.getElementById('avg-score').textContent = avgScore;
+            
+            // Update active users list
+            const activeUsersContainer = document.getElementById('active-users-container');
+            activeUsersContainer.innerHTML = '';
+            
+            if (activeUsers.length === 0) {
+                activeUsersContainer.innerHTML = '<p class="text-center">No active users</p>';
+                return;
+            }
+            
+            activeUsers.forEach(user => {
+                const userEl = document.createElement('div');
+                userEl.className = 'active-user';
+                
+                userEl.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${user.name.charAt(0)}</div>
+                        <div>${user.name}</div>
+                    </div>
+                    <div>Started: ${new Date(user.startTime).toLocaleTimeString()}</div>
+                `;
+                
+                activeUsersContainer.appendChild(userEl);
+            });
+        }
+
+        // Save exam data
+        function saveExam() {
+            try {
+                const jsonData = document.getElementById('exam-json').value;
+                const examJson = JSON.parse(jsonData);
+                
+                // Generate a unique exam ID based on title and timestamp
+                const examId = `${document.getElementById('exam-title').value}_${Date.now()}`;
+                
+                const exam = {
+                    id: examId,
+                    title: document.getElementById('exam-title').value,
+                    date: document.getElementById('exam-date').value,
+                    startTime: document.getElementById('exam-start-time').value,
+                    endTime: document.getElementById('exam-end-time').value,
+                    ...examJson
+                };
+                
+                localStorage.setItem('ntrca_exam', JSON.stringify(exam));
+                examData = exam;
+                
+                // Generate shareable link
+                const currentUrl = window.location.href.split('#')[0];
+                const examLink = `${currentUrl}#exam`;
+                document.getElementById('exam-link').value = examLink;
+                document.getElementById('exam-link-container').classList.remove('hidden');
+                
+                alert('Exam saved successfully!');
+            } catch (error) {
+                alert('Error parsing JSON: ' + error.message);
+            }
+        }
+
+        // Copy exam link to clipboard
+        function copyLink() {
+            const linkInput = document.getElementById('exam-link');
+            linkInput.select();
+            document.execCommand('copy');
+            alert('Link copied to clipboard!');
+        }
+
+        // Update exam info in the header
+        function updateExamInfo() {
+            if (!examData) return;
+            
+            document.getElementById('exam-subject').textContent = examData.subject || 'বাংলা সাহিত্য';
+            document.getElementById('exam-topic').textContent = `Topic: ${examData.topic || 'বাংলা সাহিত্য'}`;
+            document.getElementById('exam-difficulty').textContent = `Difficulty: ${examData.difficulty || 'medium'}`;
+            
+            if (examData.title) {
+                document.querySelector('h1').textContent = examData.title;
+            }
+        }
+
+        // Check exam status and show appropriate screen
+        function checkExamStatus() {
+            if (!examData) return;
+            
+            const now = new Date();
+            const examDate = new Date(`${examData.date}T${examData.startTime}`);
+            const examEndDate = new Date(`${examData.date}T${examData.endTime}`);
+            
+            // Check if exam has started
+            if (now < examDate) {
+                showCountdown(examDate);
+                return;
+            }
+            
+            // Check if exam has ended
+            if (now > examEndDate) {
+                showExamClosed();
+                return;
+            }
+            
+            // Exam is active, show participant login
+            showParticipantLogin();
+        }
+
+        // Show countdown to exam start
+        function showCountdown(examDate) {
+            document.getElementById('status-message').classList.remove('hidden');
+            document.getElementById('countdown-message').classList.remove('hidden');
+            document.getElementById('exam-closed-message').classList.add('hidden');
+            document.getElementById('participant-login').classList.add('hidden');
+            
+            // Update countdown every second
+            const countdownInterval = setInterval(() => {
+                const now = new Date();
+                const timeRemaining = examDate - now;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(countdownInterval);
+                    checkExamStatus();
+                    return;
+                }
+                
+                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown-text').textContent = 
+                    `পরীক্ষা শুরু হতে সময় বাকি: ${hours} ঘণ্টা ${minutes} মিনিট ${seconds} সেকেন্ড`;
+            }, 1000);
+        }
+
+        // Show exam closed message
+        function showExamClosed() {
+            document.getElementById('status-message').classList.remove('hidden');
+            document.getElementById('countdown-message').classList.add('hidden');
+            document.getElementById('exam-closed-message').classList.remove('hidden');
+            document.getElementById('participant-login').classList.add('hidden');
+        }
+
+        // Show participant login
+        function showParticipantLogin() {
+            document.getElementById('status-message').classList.add('hidden');
+            document.getElementById('participant-login').classList.remove('hidden');
+            
+            // Check if user has already taken this specific exam
+            const participantName = localStorage.getItem('ntrca_participant');
+            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
+            
+            if (participantName && examData && examData.id) {
+                // Check if user has taken this specific exam
+                const hasTakenThisExam = profile.exams && 
+                    profile.exams.some(exam => exam.examId === examData.id);
+                
+                if (hasTakenThisExam) {
+                    document.getElementById('already-taken-message').classList.remove('hidden');
+                    document.getElementById('participant-name').value = participantName;
+                    document.getElementById('participant-name').disabled = true;
+                } else {
+                    document.getElementById('already-taken-message').classList.add('hidden');
+                    document.getElementById('participant-name').disabled = false;
+                }
+            } else {
+                document.getElementById('already-taken-message').classList.add('hidden');
+                document.getElementById('participant-name').disabled = false;
+            }
+        }
+
+        // Start the exam for participant
+        function startExam() {
+            const participantName = document.getElementById('participant-name').value.trim();
+            if (!participantName) {
+                alert('দয়া করে আপনার নাম লিখুন');
+                return;
+            }
+            
+            // Check if user has already taken this specific exam
+            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
+            if (examData && examData.id && profile.exams) {
+                const hasTakenThisExam = profile.exams.some(exam => exam.examId === examData.id);
+                if (hasTakenThisExam && !isPreview) {
+                    alert('আপনি ইতিমধ্যে এই পরীক্ষা দিয়েছেন।');
+                    return;
+                }
+            }
+            
+            // Save participant name
+            localStorage.setItem('ntrca_participant', participantName);
+            
+            // Add to active users
+            if (!isPreview) {
+                const activeUsers = JSON.parse(localStorage.getItem('ntrca_active_users') || '[]');
+                activeUsers.push({
+                    name: participantName,
+                    startTime: new Date().toISOString()
+                });
+                localStorage.setItem('ntrca_active_users', JSON.stringify(activeUsers));
+            }
+            
+            // Initialize user answers
+            if (examData && examData.questions) {
+                examData.questions.forEach((_, index) => {
+                    userAnswers[index] = null;
+                });
+            }
+            
+            // Start exam
+            examStarted = true;
+            document.getElementById('participant-login').classList.add('hidden');
+            document.getElementById('exam-content').classList.remove('hidden');
+            
+            // Load all questions
+            renderAllQuestions();
+            
+            // Start exam timer if not in preview mode
+            if (!isPreview) {
+                startExamTimer();
+            }
+        }
+
+        // Render all questions at once
+        function renderAllQuestions() {
+            if (!examData || !examData.questions) return;
+            
+            const questionsContainer = document.getElementById('questions-container');
+            questionsContainer.innerHTML = '';
+            
+            // Create all question cards
+            examData.questions.forEach((question, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                if (isPreview) {
+                    questionCard.classList.add('admin-preview');
+                }
+                questionCard.id = `question-${index}`;
+                
+                questionCard.innerHTML = `
+                    <div class="question-number">প্রশ্ন ${index + 1}:</div>
+                    <div class="question-text">${question.question_text}</div>
+                    <div class="options-container" id="options-${index}"></div>
+                `;
+                
+                questionsContainer.appendChild(questionCard);
+                
+                // Create options
+                const optionsContainer = document.getElementById(`options-${index}`);
+                
+                for (const [key, value] of Object.entries(question.options)) {
+                    const optionButton = document.createElement('button');
+                    optionButton.className = 'option-btn';
+                    if (userAnswers[index] === key) {
+                        optionButton.classList.add('selected');
+                    }
+                    if (userAnswers[index] !== null && !isPreview) {
+                        optionButton.classList.add('disabled');
+                    }
+                    optionButton.textContent = `${key}. ${value}`;
+                    optionButton.onclick = () => selectOption(index, key);
+                    optionsContainer.appendChild(optionButton);
+                }
+            });
+        }
+
+        // Select an option for a question
+        function selectOption(questionIndex, option) {
+            if (userAnswers[questionIndex] !== null && !isPreview) return;
+            
+            userAnswers[questionIndex] = option;
+            
+            // Update the UI for this question
+            const optionButtons = document.querySelectorAll(`#options-${questionIndex} .option-btn`);
+            optionButtons.forEach(btn => {
+                btn.classList.remove('selected');
+                if (!isPreview) {
+                    btn.classList.add('disabled');
+                }
+                if (btn.textContent.startsWith(option)) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        // Start exam timer
+        function startExamTimer() {
+            if (!examData || isPreview) return;
+            
+            const examEndDate = new Date(`${examData.date}T${examData.endTime}`);
+            
+            const timerInterval = setInterval(() => {
+                const now = new Date();
+                const timeRemaining = examEndDate - now;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                    return;
+                }
+                
+                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                
+                document.getElementById('exam-timer').textContent = 
+                    `সময় বাকি: ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Submit the exam
+        function submitExam() {
+            examEnded = true;
+            
+            // Calculate score
+            const score = calculateScore();
+            
+            // Save result to leaderboard and profile
+            if (!isPreview) {
+                saveToLeaderboard(score);
+                saveToProfile(score);
+                
+                // Remove from active users
+                const participantName = localStorage.getItem('ntrca_participant');
+                let activeUsers = JSON.parse(localStorage.getItem('ntrca_active_users') || '[]');
+                activeUsers = activeUsers.filter(user => user.name !== participantName);
+                localStorage.setItem('ntrca_active_users', JSON.stringify(activeUsers));
+            }
+            
+            // Show exam review
+            showExamReview(score);
+        }
+
+        // Calculate score with negative marking
+        function calculateScore() {
+            if (!examData || !examData.questions) return 0;
+            
+            let correctCount = 0;
+            let wrongCount = 0;
+            
+            examData.questions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct_answer) {
+                    correctCount++;
+                } else if (userAnswers[index] !== null) {
+                    wrongCount++;
+                }
+            });
+            
+            // Apply negative marking: -1 for every 4 wrong answers
+            const negativeMarks = Math.floor(wrongCount / 4);
+            return correctCount - negativeMarks;
+        }
+
+        // Save result to leaderboard
+        function saveToLeaderboard(score) {
+            const participantName = localStorage.getItem('ntrca_participant');
+            const leaderboard = JSON.parse(localStorage.getItem('ntrca_leaderboard') || '[]');
+            
+            leaderboard.push({
+                name: participantName,
+                score: score,
+                timestamp: new Date().toISOString(),
+                examId: examData.id
+            });
+            
+            localStorage.setItem('ntrca_leaderboard', JSON.stringify(leaderboard));
+        }
+
+        // Save result to profile
+        function saveToProfile(score) {
+            const participantName = localStorage.getItem('ntrca_participant');
+            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
+            
+            if (!profile.exams) {
+                profile.exams = [];
+            }
+            
+            profile.exams.push({
+                examId: examData.id,
+                title: examData.title || 'NTRCA Prelim Test',
+                score: score,
+                total: examData.questions.length,
+                date: new Date().toISOString()
+            });
+            
+            profile.name = participantName;
+            
+            localStorage.setItem('ntrca_profile', JSON.stringify(profile));
+        }
+
+        // Load user profile
+        function loadProfile() {
+            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
+            const profileName = document.getElementById('profile-name');
+            const profileAvatar = document.getElementById('profile-avatar');
+            const examHistoryList = document.getElementById('exam-history-list');
+            
+            if (profile.name) {
+                profileName.textContent = profile.name;
+                profileAvatar.textContent = profile.name.charAt(0);
+                
+                if (profile.exams && profile.exams.length > 0) {
+                    examHistoryList.innerHTML = '';
+                    
+                    profile.exams.forEach((exam, index) => {
+                        const examItem = document.createElement('div');
+                        examItem.className = 'profile-exam-item';
+                        
+                        const examDate = new Date(exam.date);
+                        const formattedDate = `${examDate.getDate()}/${examDate.getMonth() + 1}/${examDate.getFullYear()}`;
+                        
+                        examItem.innerHTML = `
+                            <div>
+                                <strong>${exam.title}</strong>
+                                <div>তারিখ: ${formattedDate}</div>
+                            </div>
+                            <div>
+                                <strong>স্কোর: ${exam.score}/${exam.total}</strong>
+                            </div>
+                        `;
+                        
+                        examHistoryList.appendChild(examItem);
+                    });
+                } else {
+                    examHistoryList.innerHTML = '<p class="text-center">আপনি এখনো কোনো পরীক্ষা দেননি।</p>';
+                }
+            } else {
+                profileName.textContent = 'আপনি এখনো কোনো পরীক্ষা দেননি।';
+                examHistoryList.innerHTML = '';
+            }
+        }
+
+        // Show exam review
+        function showExamReview(score) {
+            // Hide exam interface and show review
+            document.getElementById('exam-interface').classList.add('hidden');
+            document.getElementById('exam-review').classList.remove('hidden');
+            
+            // Display score
+            document.getElementById('score-display').innerHTML = `
+                <h3>আপনার স্কোর: ${score}/${examData.questions.length}</h3>
+                <p>${score >= (examData.questions.length / 2) ? 'অভিনন্দন! আপনি ভালো করেছেন।' : 'আরও ভালো করার চেষ্টা করুন।'}</p>
+            `;
+            
+            // Generate review content
+            const reviewContainer = document.getElementById('review-questions');
+            reviewContainer.innerHTML = '';
+            
+            examData.questions.forEach((question, index) => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'question-card';
+                
+                const isCorrect = userAnswers[index] === question.correct_answer;
+                
+                reviewCard.innerHTML = `
+                    <div class="question-number">প্রশ্ন ${index + 1}:</div>
+                    <div class="question-text">${question.question_text}</div>
+                    
+                    <div class="mb-20">
+                        <strong>আপনার উত্তর:</strong> 
+                        <span class="${isCorrect ? 'review-correct' : 'review-incorrect'}">
+                            ${userAnswers[index] ? `${userAnswers[index]}. ${question.options[userAnswers[index]]}` : 'উত্তর দেওয়া হয়নি'}
+                        </span>
+                        ${userAnswers[index] ? (isCorrect ? '✓' : '✗') : ''}
+                    </div>
+                    
+                    <div class="review-correct mb-20">
+                        <strong>সঠিক উত্তর:</strong> 
+                        ${question.correct_answer}. ${question.options[question.correct_answer]}
+                    </div>
+                    
+                    <div class="explanation">
+                        <strong>ব্যাখ্যা:</strong> ${question.explanation}
+                    </div>
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        // Share on Facebook
+        function shareOnFacebook() {
+            const score = calculateScore();
+            const total = examData.questions.length;
+            const shareText = `আমি NTRCA Prelim Test-এ ${score}/${total} পেয়েছি!`;
+            const shareUrl = encodeURIComponent(window.location.href);
+            
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${encodeURIComponent(shareText)}`, '_blank');
+        }
+
+        // Show leaderboard
+        function showLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('ntrca_leaderboard') || '[]');
+            
+            // Filter leaderboard for current exam only
+            const currentExamLeaderboard = leaderboard.filter(item => item.examId === examData.id);
+            
+            // Sort by score (descending)
+            currentExamLeaderboard.sort((a, b) => b.score - a.score);
+            
+            const leaderboardItems = document.getElementById('leaderboard-items');
+            leaderboardItems.innerHTML = '';
+            
+            if (currentExamLeaderboard.length === 0) {
+                leaderboardItems.innerHTML = '<p class="text-center">এখনো কোনো রেকর্ড নেই।</p>';
+                return;
+            }
+            
+            currentExamLeaderboard.forEach((item, index) => {
+                const leaderboardItem = document.createElement('div');
+                leaderboardItem.className = 'leaderboard-item';
+                
+                leaderboardItem.innerHTML = `
+                    <div class="leaderboard-rank">${index + 1}</div>
+                    <div class="leaderboard-name">${item.name}</div>
+                    <div class="leaderboard-score">${item.score}</div>
+                `;
+                
+                leaderboardItems.appendChild(leaderboardItem);
+            });
+        }
+
+        // Preview exam as admin
+        function previewExam() {
+            isPreview = true;
+            startExam();
+        }
+
+        // Initialize the app when the page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
