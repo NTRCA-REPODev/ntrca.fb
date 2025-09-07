@@ -393,6 +393,8 @@
 
         .active-users-list {
             margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .active-user {
@@ -426,6 +428,20 @@
             max-height: 600px;
             overflow-y: auto;
             padding: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -476,14 +492,14 @@
                     <i class="fab fa-facebook"></i> Facebook: NTRCA (বেসরকারি শিক্ষক নিবন্ধন) 
                 </a>
                 <div class="latest-update">
-                    <i class="fas fa-sync-alt"></i> Latest Update: Check Our facebook page NTRCA
+                    <i class="fas fa-sync-alt"></i> Limited Offer ⚡: 30 MCQs Daily • Go Pro for 100+ MCQ & Exam‑Targeted — 30 ৳
                 </div>
             </div>
             
             <h1>NTRCA Prelim Test</h1>
-            <p id="exam-subject">SUBJECT</p>
-            <p id="exam-topic">Topic: Topic Name</p>
-            <p id="exam-difficulty">Difficulty: Easy - Hard </p>
+            <p id="exam-subject">Subject Name</p>
+            <p id="exam-topic">Topic Name</p>
+            <p id="exam-difficulty"> Difficulty Level</p>
             <p id="exam-timer" class="timer"></p>
         </header>
 
@@ -561,7 +577,7 @@
             <section id="exam-interface" class="card">
                 <div id="participant-login">
                     <h2><i class="fas fa-book"></i> পরীক্ষায় অংশগ্রহণ</h2>
-                    <input type="text" id="participant-name" placeholder="আপনার নাম লিখুন">
+                    <input type="text" id="participant-name" placeholder="আপনার পুরো নাম লিখুন">
                     <button class="btn" onclick="startExam()">পরীক্ষা শুরু করুন</button>
                     <p id="already-taken-message" class="notification notification-error hidden mt-20">
                         আপনি ইতিমধ্যে এই পরীক্ষা দিয়েছেন।
@@ -602,7 +618,7 @@
                         </div>
                     </div>
                     <div id="exam-history" class="mt-20">
-                        <h3><i class="fas fa-history"></i> আপনার পরীক্ষার History</h3>
+                        <h3><i class="fas fa-history"></i> আপনার পরীক্ষার History </h3>
                         <div id="exam-history-list"></div>
                     </div>
                 </div>
@@ -641,6 +657,7 @@
 
     <script>
         // Global variables
+        const API_BASE_URL = 'https://ntrca-fb.onrender.com';
         let examData = null;
         let currentQuestionIndex = 0;
         let userAnswers = {};
@@ -650,8 +667,30 @@
         let isPreview = false;
         const ADMIN_PASSWORD = "FahimsirNTRCA"; // Simple hardcoded password
 
+        // API Helper Functions
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                throw error;
+            }
+        }
+
         // Initialize the application
-        function init() {
+        async function init() {
             // Setup navigation tabs
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -666,16 +705,16 @@
                 return;
             }
 
-            // Check if there's an exam in localStorage
-            const savedExam = localStorage.getItem('ntrca_exam');
-            if (savedExam) {
-                examData = JSON.parse(savedExam);
+            // Check if there's an exam from the backend
+            try {
+                examData = await apiCall('/api/exam');
                 updateExamInfo();
                 checkExamStatus();
+            } catch (error) {
+                console.error('Failed to load exam:', error);
+                // No exam created yet, show admin dashboard by default
+                showAdminDashboard();
             }
-
-            // Load profile if user has taken exams before
-            loadProfile();
 
             // Handle file upload
             document.getElementById('json-upload').addEventListener('change', function(event) {
@@ -689,8 +728,10 @@
                 }
             });
 
-            // Update admin stats periodically
-            setInterval(updateAdminStats, 5000);
+            // Update admin stats periodically if admin
+            setInterval(() => {
+                if (isAdmin) updateAdminStats();
+            }, 5000);
         }
 
         // Switch between views
@@ -716,13 +757,13 @@
                 showLeaderboard();
             } else if (viewId === 'profile') {
                 loadProfile();
-            } else if (viewId === 'admin-dashboard') {
+            } else if (viewId === 'admin-dashboard' && isAdmin) {
                 updateAdminStats();
             }
         }
 
         // Admin login
-        function adminLogin() {
+        async function adminLogin() {
             const password = document.getElementById('admin-password').value;
             if (password === ADMIN_PASSWORD) {
                 isAdmin = true;
@@ -730,22 +771,26 @@
                 document.getElementById('admin-panel').classList.remove('hidden');
                 
                 // Load existing exam data if available
-                const savedExam = localStorage.getItem('ntrca_exam');
-                if (savedExam) {
-                    const exam = JSON.parse(savedExam);
-                    document.getElementById('exam-title').value = exam.title || '';
-                    document.getElementById('exam-date').value = exam.date || '';
-                    document.getElementById('exam-start-time').value = exam.startTime || '';
-                    document.getElementById('exam-end-time').value = exam.endTime || '';
+                try {
+                    examData = await apiCall('/api/exam');
                     
-                    if (exam.questions) {
-                        document.getElementById('exam-json').value = JSON.stringify({
-                            subject: exam.subject,
-                            topic: exam.topic,
-                            difficulty: exam.difficulty,
-                            questions: exam.questions
-                        }, null, 2);
+                    if (examData && !examData.error) {
+                        document.getElementById('exam-title').value = examData.title || '';
+                        document.getElementById('exam-date').value = examData.date || '';
+                        document.getElementById('exam-start-time').value = examData.startTime || '';
+                        document.getElementById('exam-end-time').value = examData.endTime || '';
+                        
+                        if (examData.questions) {
+                            document.getElementById('exam-json').value = JSON.stringify({
+                                subject: examData.subject,
+                                topic: examData.topic,
+                                difficulty: examData.difficulty,
+                                questions: examData.questions
+                            }, null, 2);
+                        }
                     }
+                } catch (error) {
+                    console.error('Failed to load exam data:', error);
                 }
             } else {
                 alert('Invalid password');
@@ -753,76 +798,91 @@
         }
 
         // Update admin statistics
-        function updateAdminStats() {
+        async function updateAdminStats() {
             if (!isAdmin) return;
             
-            const leaderboard = JSON.parse(localStorage.getItem('ntrca_leaderboard') || '[]');
-            const activeUsers = JSON.parse(localStorage.getItem('ntrca_active_users') || '[]');
-            
-            // Update stats
-            document.getElementById('total-participants').textContent = leaderboard.length;
-            document.getElementById('active-users').textContent = activeUsers.length;
-            
-            // Calculate average score
-            const avgScore = leaderboard.length > 0 ? 
-                (leaderboard.reduce((sum, user) => sum + user.score, 0) / leaderboard.length).toFixed(1) : 0;
-            document.getElementById('avg-score').textContent = avgScore;
-            
-            // Update active users list
-            const activeUsersContainer = document.getElementById('active-users-container');
-            activeUsersContainer.innerHTML = '';
-            
-            if (activeUsers.length === 0) {
-                activeUsersContainer.innerHTML = '<p class="text-center">No active users</p>';
-                return;
+            try {
+                // Get leaderboard data
+                const leaderboard = await apiCall(`/api/leaderboard/${examData.id}`);
+                
+                // Get active users
+                const activeUsers = await apiCall(`/api/active-users/${examData.id}`);
+                
+                // Update stats
+                document.getElementById('total-participants').textContent = leaderboard.length;
+                document.getElementById('active-users').textContent = activeUsers.length;
+                
+                // Calculate average score
+                const avgScore = leaderboard.length > 0 ? 
+                    (leaderboard.reduce((sum, user) => sum + user.score, 0) / leaderboard.length).toFixed(1) : 0;
+                document.getElementById('avg-score').textContent = avgScore;
+                
+                // Update active users list
+                const activeUsersContainer = document.getElementById('active-users-container');
+                activeUsersContainer.innerHTML = '';
+                
+                if (activeUsers.length === 0) {
+                    activeUsersContainer.innerHTML = '<p class="text-center">No active users</p>';
+                    return;
+                }
+                
+                activeUsers.forEach(user => {
+                    const userEl = document.createElement('div');
+                    userEl.className = 'active-user';
+                    
+                    userEl.innerHTML = `
+                        <div class="user-info">
+                            <div class="user-avatar">${user.name.charAt(0)}</div>
+                            <div>${user.name}</div>
+                        </div>
+                        <div>Started: ${new Date(user.startTime).toLocaleTimeString()}</div>
+                    `;
+                    
+                    activeUsersContainer.appendChild(userEl);
+                });
+            } catch (error) {
+                console.error('Failed to update admin stats:', error);
             }
-            
-            activeUsers.forEach(user => {
-                const userEl = document.createElement('div');
-                userEl.className = 'active-user';
-                
-                userEl.innerHTML = `
-                    <div class="user-info">
-                        <div class="user-avatar">${user.name.charAt(0)}</div>
-                        <div>${user.name}</div>
-                    </div>
-                    <div>Started: ${new Date(user.startTime).toLocaleTimeString()}</div>
-                `;
-                
-                activeUsersContainer.appendChild(userEl);
-            });
         }
 
         // Save exam data
-        function saveExam() {
+        async function saveExam() {
             try {
                 const jsonData = document.getElementById('exam-json').value;
                 const examJson = JSON.parse(jsonData);
                 
-                // Generate a unique exam ID based on title and timestamp
-                const examId = `${document.getElementById('exam-title').value}_${Date.now()}`;
-                
-                const exam = {
-                    id: examId,
-                    title: document.getElementById('exam-title').value,
-                    date: document.getElementById('exam-date').value,
-                    startTime: document.getElementById('exam-start-time').value,
-                    endTime: document.getElementById('exam-end-time').value,
-                    ...examJson
+                const examPayload = {
+                    password: ADMIN_PASSWORD,
+                    examData: {
+                        title: document.getElementById('exam-title').value,
+                        date: document.getElementById('exam-date').value,
+                        startTime: document.getElementById('exam-start-time').value,
+                        endTime: document.getElementById('exam-end-time').value,
+                        ...examJson
+                    }
                 };
                 
-                localStorage.setItem('ntrca_exam', JSON.stringify(exam));
-                examData = exam;
+                const result = await apiCall('/api/exam', {
+                    method: 'POST',
+                    body: JSON.stringify(examPayload)
+                });
                 
-                // Generate shareable link
-                const currentUrl = window.location.href.split('#')[0];
-                const examLink = `${currentUrl}#exam`;
-                document.getElementById('exam-link').value = examLink;
-                document.getElementById('exam-link-container').classList.remove('hidden');
-                
-                alert('Exam saved successfully!');
+                if (result.success) {
+                    // Reload exam data
+                    examData = await apiCall('/api/exam');
+                    
+                    // Generate shareable link
+                    const currentUrl = window.location.href.split('#')[0];
+                    const examLink = `${currentUrl}#exam`;
+                    document.getElementById('exam-link').value = examLink;
+                    document.getElementById('exam-link-container').classList.remove('hidden');
+                    
+                    alert('Exam saved successfully!');
+                } else {
+                    alert('Failed to save exam: ' + result.message);
+                }
             } catch (error) {
-                alert('Error parsing JSON: ' + error.message);
+                alert('Error saving exam: ' + error.message);
             }
         }
 
@@ -839,8 +899,8 @@
             if (!examData) return;
             
             document.getElementById('exam-subject').textContent = examData.subject || 'বাংলা সাহিত্য';
-            document.getElementById('exam-topic').textContent = `Topic: ${examData.topic || 'বাংলা সাহিত্য'}`;
-            document.getElementById('exam-difficulty').textContent = `Difficulty: ${examData.difficulty || 'medium'}`;
+            document.getElementById('exam-topic').textContent = `বিষয়: ${examData.topic || 'বাংলা সাহিত্য'}`;
+            document.getElementById('exam-difficulty').textContent = `কঠিনতা: ${examData.difficulty || 'medium'}`;
             
             if (examData.title) {
                 document.querySelector('h1').textContent = examData.title;
@@ -907,24 +967,27 @@
         }
 
         // Show participant login
-        function showParticipantLogin() {
+        async function showParticipantLogin() {
             document.getElementById('status-message').classList.add('hidden');
             document.getElementById('participant-login').classList.remove('hidden');
             
             // Check if user has already taken this specific exam
-            const participantName = localStorage.getItem('ntrca_participant');
-            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
+            const participantName = document.getElementById('participant-name').value;
             
             if (participantName && examData && examData.id) {
-                // Check if user has taken this specific exam
-                const hasTakenThisExam = profile.exams && 
-                    profile.exams.some(exam => exam.examId === examData.id);
-                
-                if (hasTakenThisExam) {
-                    document.getElementById('already-taken-message').classList.remove('hidden');
-                    document.getElementById('participant-name').value = participantName;
-                    document.getElementById('participant-name').disabled = true;
-                } else {
+                try {
+                    const response = await apiCall(`/api/exam-taken/${examData.id}/${encodeURIComponent(participantName)}`);
+                    
+                    if (response.taken) {
+                        document.getElementById('already-taken-message').classList.remove('hidden');
+                        document.getElementById('participant-name').value = participantName;
+                        document.getElementById('participant-name').disabled = true;
+                    } else {
+                        document.getElementById('already-taken-message').classList.add('hidden');
+                        document.getElementById('participant-name').disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Failed to check exam status:', error);
                     document.getElementById('already-taken-message').classList.add('hidden');
                     document.getElementById('participant-name').disabled = false;
                 }
@@ -935,7 +998,7 @@
         }
 
         // Start the exam for participant
-        function startExam() {
+        async function startExam() {
             const participantName = document.getElementById('participant-name').value.trim();
             if (!participantName) {
                 alert('দয়া করে আপনার নাম লিখুন');
@@ -943,26 +1006,29 @@
             }
             
             // Check if user has already taken this specific exam
-            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
-            if (examData && examData.id && profile.exams) {
-                const hasTakenThisExam = profile.exams.some(exam => exam.examId === examData.id);
-                if (hasTakenThisExam && !isPreview) {
+            try {
+                const response = await apiCall(`/api/exam-taken/${examData.id}/${encodeURIComponent(participantName)}`);
+                if (response.taken && !isPreview) {
                     alert('আপনি ইতিমধ্যে এই পরীক্ষা দিয়েছেন।');
                     return;
                 }
+            } catch (error) {
+                console.error('Failed to check exam status:', error);
             }
-            
-            // Save participant name
-            localStorage.setItem('ntrca_participant', participantName);
             
             // Add to active users
             if (!isPreview) {
-                const activeUsers = JSON.parse(localStorage.getItem('ntrca_active_users') || '[]');
-                activeUsers.push({
-                    name: participantName,
-                    startTime: new Date().toISOString()
-                });
-                localStorage.setItem('ntrca_active_users', JSON.stringify(activeUsers));
+                try {
+                    await apiCall('/api/active-users', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            name: participantName,
+                            examId: examData.id
+                        })
+                    });
+                } catch (error) {
+                    console.error('Failed to add to active users:', error);
+                }
             }
             
             // Initialize user answers
@@ -1074,26 +1140,52 @@
         }
 
         // Submit the exam
-        function submitExam() {
+        async function submitExam() {
             examEnded = true;
             
             // Calculate score
             const score = calculateScore();
             
-            // Save result to leaderboard and profile
+            // Save result to backend
             if (!isPreview) {
-                saveToLeaderboard(score);
-                saveToProfile(score);
-                
-                // Remove from active users
-                const participantName = localStorage.getItem('ntrca_participant');
-                let activeUsers = JSON.parse(localStorage.getItem('ntrca_active_users') || '[]');
-                activeUsers = activeUsers.filter(user => user.name !== participantName);
-                localStorage.setItem('ntrca_active_users', JSON.stringify(activeUsers));
+                try {
+                    const participantName = document.getElementById('participant-name').value.trim();
+                    
+                    const result = await apiCall('/api/exam/submit', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            participantName,
+                            examId: examData.id,
+                            answers: userAnswers
+                        })
+                    });
+                    
+                    if (result.success) {
+                        // Remove from active users
+                        try {
+                            await apiCall('/api/active-users', {
+                                method: 'DELETE',
+                                body: JSON.stringify({
+                                    name: participantName,
+                                    examId: examData.id
+                                })
+                            });
+                        } catch (error) {
+                            console.error('Failed to remove from active users:', error);
+                        }
+                        
+                        // Show exam review
+                        showExamReview(score);
+                    } else {
+                        alert('Failed to submit exam: ' + result.message);
+                    }
+                } catch (error) {
+                    alert('Error submitting exam: ' + error.message);
+                }
+            } else {
+                // Show exam review for preview
+                showExamReview(score);
             }
-            
-            // Show exam review
-            showExamReview(score);
         }
 
         // Calculate score with negative marking
@@ -1116,55 +1208,25 @@
             return correctCount - negativeMarks;
         }
 
-        // Save result to leaderboard
-        function saveToLeaderboard(score) {
-            const participantName = localStorage.getItem('ntrca_participant');
-            const leaderboard = JSON.parse(localStorage.getItem('ntrca_leaderboard') || '[]');
+        // Load user profile
+        async function loadProfile() {
+            const participantName = document.getElementById('participant-name').value || 
+                                  localStorage.getItem('ntrca_participant');
             
-            leaderboard.push({
-                name: participantName,
-                score: score,
-                timestamp: new Date().toISOString(),
-                examId: examData.id
-            });
-            
-            localStorage.setItem('ntrca_leaderboard', JSON.stringify(leaderboard));
-        }
-
-        // Save result to profile
-        function saveToProfile(score) {
-            const participantName = localStorage.getItem('ntrca_participant');
-            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
-            
-            if (!profile.exams) {
-                profile.exams = [];
+            if (!participantName) {
+                document.getElementById('profile-name').textContent = 'আপনি এখনো কোনো পরীক্ষা দেননি।';
+                document.getElementById('exam-history-list').innerHTML = '';
+                return;
             }
             
-            profile.exams.push({
-                examId: examData.id,
-                title: examData.title || 'NTRCA Prelim Test',
-                score: score,
-                total: examData.questions.length,
-                date: new Date().toISOString()
-            });
-            
-            profile.name = participantName;
-            
-            localStorage.setItem('ntrca_profile', JSON.stringify(profile));
-        }
-
-        // Load user profile
-        function loadProfile() {
-            const profile = JSON.parse(localStorage.getItem('ntrca_profile') || '{}');
-            const profileName = document.getElementById('profile-name');
-            const profileAvatar = document.getElementById('profile-avatar');
-            const examHistoryList = document.getElementById('exam-history-list');
-            
-            if (profile.name) {
-                profileName.textContent = profile.name;
-                profileAvatar.textContent = profile.name.charAt(0);
+            try {
+                const profile = await apiCall(`/api/profile/${encodeURIComponent(participantName)}`);
+                
+                document.getElementById('profile-name').textContent = profile.name;
+                document.getElementById('profile-avatar').textContent = profile.name.charAt(0);
                 
                 if (profile.exams && profile.exams.length > 0) {
+                    const examHistoryList = document.getElementById('exam-history-list');
                     examHistoryList.innerHTML = '';
                     
                     profile.exams.forEach((exam, index) => {
@@ -1176,7 +1238,7 @@
                         
                         examItem.innerHTML = `
                             <div>
-                                <strong>${exam.title}</strong>
+                                <strong>${exam.examTitle}</strong>
                                 <div>তারিখ: ${formattedDate}</div>
                             </div>
                             <div>
@@ -1187,11 +1249,12 @@
                         examHistoryList.appendChild(examItem);
                     });
                 } else {
-                    examHistoryList.innerHTML = '<p class="text-center">আপনি এখনো কোনো পরীক্ষা দেননি।</p>';
+                    document.getElementById('exam-history-list').innerHTML = '<p class="text-center">আপনি এখনো কোনো পরীক্ষা দেননি।</p>';
                 }
-            } else {
-                profileName.textContent = 'আপনি এখনো কোনো পরীক্ষা দেননি।';
-                examHistoryList.innerHTML = '';
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+                document.getElementById('profile-name').textContent = 'আপনি এখনো কোনো পরীক্ষা দেননি।';
+                document.getElementById('exam-history-list').innerHTML = '';
             }
         }
 
@@ -1254,35 +1317,34 @@
         }
 
         // Show leaderboard
-        function showLeaderboard() {
-            const leaderboard = JSON.parse(localStorage.getItem('ntrca_leaderboard') || '[]');
-            
-            // Filter leaderboard for current exam only
-            const currentExamLeaderboard = leaderboard.filter(item => item.examId === examData.id);
-            
-            // Sort by score (descending)
-            currentExamLeaderboard.sort((a, b) => b.score - a.score);
-            
-            const leaderboardItems = document.getElementById('leaderboard-items');
-            leaderboardItems.innerHTML = '';
-            
-            if (currentExamLeaderboard.length === 0) {
-                leaderboardItems.innerHTML = '<p class="text-center">এখনো কোনো রেকর্ড নেই।</p>';
-                return;
+        async function showLeaderboard() {
+            try {
+                const leaderboard = await apiCall(`/api/leaderboard/${examData.id}`);
+                
+                const leaderboardItems = document.getElementById('leaderboard-items');
+                leaderboardItems.innerHTML = '';
+                
+                if (leaderboard.length === 0) {
+                    leaderboardItems.innerHTML = '<p class="text-center">এখনো কোনো রেকর্ড নেই।</p>';
+                    return;
+                }
+                
+                leaderboard.forEach((item, index) => {
+                    const leaderboardItem = document.createElement('div');
+                    leaderboardItem.className = 'leaderboard-item';
+                    
+                    leaderboardItem.innerHTML = `
+                        <div class="leaderboard-rank">${index + 1}</div>
+                        <div class="leaderboard-name">${item.name}</div>
+                        <div class="leaderboard-score">${item.score}</div>
+                    `;
+                    
+                    leaderboardItems.appendChild(leaderboardItem);
+                });
+            } catch (error) {
+                console.error('Failed to load leaderboard:', error);
+                document.getElementById('leaderboard-items').innerHTML = '<p class="text-center">লিডারবোর্ড লোড করতে ব্যর্থ হয়েছে।</p>';
             }
-            
-            currentExamLeaderboard.forEach((item, index) => {
-                const leaderboardItem = document.createElement('div');
-                leaderboardItem.className = 'leaderboard-item';
-                
-                leaderboardItem.innerHTML = `
-                    <div class="leaderboard-rank">${index + 1}</div>
-                    <div class="leaderboard-name">${item.name}</div>
-                    <div class="leaderboard-score">${item.score}</div>
-                `;
-                
-                leaderboardItems.appendChild(leaderboardItem);
-            });
         }
 
         // Preview exam as admin
@@ -1295,5 +1357,4 @@
         window.onload = init;
     </script>
 </body>
-
 </html>
